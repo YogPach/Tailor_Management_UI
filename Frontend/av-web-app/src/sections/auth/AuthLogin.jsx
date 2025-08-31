@@ -14,6 +14,9 @@ import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
+import { useTheme } from '@mui/material/styles';
 
 // third-party
 import * as Yup from 'yup';
@@ -29,13 +32,16 @@ import axios from "axios";
 // assets
 import EyeOutlined from '@ant-design/icons/EyeOutlined';
 import EyeInvisibleOutlined from '@ant-design/icons/EyeInvisibleOutlined';
+import UserOutlined from '@ant-design/icons/UserOutlined';
+import LockOutlined from '@ant-design/icons/LockOutlined';
 
 // ============================|| LOGIN ||============================ //
 
 export default function AuthLogin({ isDemo = false }) {
+  const theme = useTheme();
   const [checked, setChecked] = React.useState(false);
-
   const [showPassword, setShowPassword] = React.useState(false);
+  
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -44,14 +50,13 @@ export default function AuthLogin({ isDemo = false }) {
     event.preventDefault();
   };
 
-   const handleSubmit = async () => {
+  const handleSubmit = async (values) => {
     try {
-      await axios.post("https://localhost:44301/api/Auth/login", formData);
-      alert("Form submitted successfully!");
-      setOpen(false);
+      await axios.post("https://localhost:44301/api/Auth/login", values);
+      alert("Login successful!");
     } catch (err) {
       console.error(err);
-      alert("Error submitting form!");
+      alert("Login failed!");
     }
   };
 
@@ -70,13 +75,25 @@ export default function AuthLogin({ isDemo = false }) {
             .test('no-leading-trailing-whitespace', 'Password cannot start or end with spaces', (value) => value === value.trim())
             .max(10, 'Password must be less than 10 characters')
         })}
+        onSubmit={handleSubmit}
       >
-        {({ errors, handleBlur, handleChange, touched, values }) => (
-          <form noValidate>
+        {({ errors, handleBlur, handleChange, handleSubmit, touched, values, isSubmitting }) => (
+          <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
+           
+              {/* Email Field */}
               <Grid size={12}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="email-login">Email Address</InputLabel>
+                  <InputLabel 
+                    htmlFor="email-login"
+                    sx={{ 
+                      fontWeight: 600,
+                      color: 'text.primary',
+                      mb: 0.5
+                    }}
+                  >
+                    Enter your username or email address
+                  </InputLabel>
                   <OutlinedInput
                     id="email-login"
                     type="email"
@@ -84,9 +101,26 @@ export default function AuthLogin({ isDemo = false }) {
                     name="email"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Enter email address"
+                    placeholder="Enter your email address"
                     fullWidth
                     error={Boolean(touched.email && errors.email)}
+                    startAdornment={
+                      <InputAdornment position="start">
+                        <UserOutlined style={{ color: theme.palette.primary.main }} />
+                      </InputAdornment>
+                    }
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'primary.main',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'primary.main',
+                          borderWidth: 2,
+                        },
+                      },
+                    }}
                   />
                 </Stack>
                 {touched.email && errors.email && (
@@ -95,18 +129,35 @@ export default function AuthLogin({ isDemo = false }) {
                   </FormHelperText>
                 )}
               </Grid>
+
+              {/* Password Field */}
               <Grid size={12}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="password-login">Password</InputLabel>
+                  <InputLabel 
+                    htmlFor="password-login"
+                    sx={{ 
+                      fontWeight: 600,
+                      color: 'text.primary',
+                      mb: 0.5
+                    }}
+                  >
+                    Enter your Password
+                  </InputLabel>
                   <OutlinedInput
                     fullWidth
                     error={Boolean(touched.password && errors.password)}
-                    id="-password-login"
+                    id="password-login"
                     type={showPassword ? 'text' : 'password'}
                     value={values.password}
                     name="password"
                     onBlur={handleBlur}
                     onChange={handleChange}
+                    placeholder="Enter your password"
+                    startAdornment={
+                      <InputAdornment position="start">
+                        <LockOutlined style={{ color: theme.palette.primary.main }} />
+                      </InputAdornment>
+                    }
                     endAdornment={
                       <InputAdornment position="end">
                         <IconButton
@@ -114,13 +165,24 @@ export default function AuthLogin({ isDemo = false }) {
                           onClick={handleClickShowPassword}
                           onMouseDown={handleMouseDownPassword}
                           edge="end"
-                          color="secondary"
+                          sx={{ color: 'primary.main' }}
                         >
                           {showPassword ? <EyeOutlined /> : <EyeInvisibleOutlined />}
                         </IconButton>
                       </InputAdornment>
                     }
-                    placeholder="Enter password"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'primary.main',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'primary.main',
+                          borderWidth: 2,
+                        },
+                      },
+                    }}
                   />
                 </Stack>
                 {touched.password && errors.password && (
@@ -129,6 +191,8 @@ export default function AuthLogin({ isDemo = false }) {
                   </FormHelperText>
                 )}
               </Grid>
+
+              {/* Remember Me & Forgot Password */}
               <Grid sx={{ mt: -1 }} size={12}>
                 <Stack direction="row" sx={{ gap: 2, alignItems: 'baseline', justifyContent: 'space-between' }}>
                   <FormControlLabel
@@ -139,22 +203,72 @@ export default function AuthLogin({ isDemo = false }) {
                         name="checked"
                         color="primary"
                         size="small"
+                        sx={{
+                          '&.Mui-checked': {
+                            color: 'primary.main',
+                          },
+                        }}
                       />
                     }
-                    label={<Typography variant="h6">Keep me sign in</Typography>}
+                    label={
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontWeight: 500,
+                          color: 'text.secondary'
+                        }}
+                      >
+                        Keep me signed in
+                      </Typography>
+                    }
                   />
-                  <Link variant="h6" component={RouterLink} to="#" color="text.primary">
+                  <Link 
+                    variant="body2" 
+                    component={RouterLink} 
+                    to="#" 
+                    sx={{ 
+                      color: 'primary.main',
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      '&:hover': {
+                        textDecoration: 'underline',
+                      }
+                    }}
+                  >
                     Forgot Password?
                   </Link>
                 </Stack>
               </Grid>
+
+              {/* Login Button */}
               <Grid size={12}>
                 <AnimateButton>
-                  <Button fullWidth size="large" variant="contained" color="primary" onClick={handleSubmit}>
-                    Login
+                  <Button 
+                    fullWidth 
+                    size="large" 
+                    variant="contained" 
+                    color="primary" 
+                    type="submit"
+                    disabled={isSubmitting}
+                    sx={{
+                      py: 1.5,
+                      borderRadius: 2,
+                      fontSize: '1.1rem',
+                      fontWeight: 600,
+                      textTransform: 'none',
+                      boxShadow: '0 4px 12px rgba(35, 41, 99, 0.3)',
+                      '&:hover': {
+                        boxShadow: '0 6px 16px rgba(35, 41, 99, 0.4)',
+                        transform: 'translateY(-1px)',
+                      },
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    {isSubmitting ? 'Signing In...' : 'Sign In'}
                   </Button>
                 </AnimateButton>
               </Grid>
+
             </Grid>
           </form>
         )}

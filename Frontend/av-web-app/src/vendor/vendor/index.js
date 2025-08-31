@@ -22,21 +22,23 @@ export default function Default(colors) {
     A800: grey[16]
   };
   const contrastText = '#fff';
+    // Override blue palette for primary color
+    const customPrimary = {
+      lighter: '#242A64',
+      100: '#242A64',
+      200: '#242A64',
+      light: '#242A64',
+      400: '#242A64',
+      main: '#242A64',
+      dark: '#242A64',
+      700: '#242A64',
+      darker: '#242A64',
+      900: '#242A64',
+      contrastText: contrastText
+    };
 
   return {
-    primary: {
-      lighter: blue[0],
-      100: blue[1],
-      200: blue[2],
-      light: blue[3],
-      400: blue[4],
-      main: blue[5],
-      dark: blue[6],
-      700: blue[7],
-      darker: blue[8],
-      900: blue[9],
-      contrastText
-    },
+      primary: customPrimary,
     secondary: {
       lighter: greyColors[100],
       100: greyColors[100],
